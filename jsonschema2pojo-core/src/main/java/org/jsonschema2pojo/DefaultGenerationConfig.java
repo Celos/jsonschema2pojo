@@ -159,7 +159,12 @@ public class DefaultGenerationConfig implements GenerationConfig {
     public Class<? extends Annotator> getCustomAnnotator() {
         return NoopAnnotator.class;
     }
-
+    
+    @Override
+    public Class<? extends Enhancer> getCustomEnhancer() {
+        return NoopEnhancer.class;
+    }
+    
     @Override
     public Class<? extends RuleFactory> getCustomRuleFactory() {
         return RuleFactory.class;

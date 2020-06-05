@@ -55,6 +55,7 @@ public class Jsonschema2Pojo {
      */
     public static void generate(GenerationConfig config, RuleLogger logger) throws IOException {
         Annotator annotator = getAnnotator(config);
+        Enhancer enhancer = getEnhancer(config);
         RuleFactory ruleFactory = createRuleFactory(config);
 
         ruleFactory.setAnnotator(annotator);
@@ -80,6 +81,8 @@ public class Jsonschema2Pojo {
             }
         }
 
+        enhancer.enhance(codeModel);
+        
         if (config.getTargetDirectory().exists() || config.getTargetDirectory().mkdirs()) {
             if (config.getTargetLanguage() == Language.SCALA) {
                 CodeWriter sourcesWriter = new ScalaFileCodeWriter(config.getTargetDirectory(), config.getOutputEncoding());
@@ -166,6 +169,11 @@ public class Jsonschema2Pojo {
     private static Annotator getAnnotator(GenerationConfig config) {
         AnnotatorFactory factory = new AnnotatorFactory(config);
         return factory.getAnnotator(factory.getAnnotator(config.getAnnotationStyle()), factory.getAnnotator(config.getCustomAnnotator()));
+    }
+    
+    private static Enhancer getEnhancer(GenerationConfig config) {
+        EnhancerFactory factory = new EnhancerFactory(config);
+        return factory.getEnhancer(config.getCustomEnhancer());
     }
 
     public static String getNodeName(URL file, GenerationConfig config) {

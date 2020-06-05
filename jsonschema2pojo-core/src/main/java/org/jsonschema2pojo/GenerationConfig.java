@@ -223,6 +223,8 @@ public interface GenerationConfig {
    */
   Class<? extends Annotator> getCustomAnnotator();
 
+  Class<? extends Enhancer> getCustomEnhancer();
+  
   /**
    * Gets the 'customRuleFactory' configuration option.
    *

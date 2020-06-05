@@ -30,10 +30,12 @@ import java.util.stream.Collectors;
 import org.jsonschema2pojo.AllFileFilter;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.jsonschema2pojo.Annotator;
+import org.jsonschema2pojo.Enhancer;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.InclusionLevel;
 import org.jsonschema2pojo.Language;
 import org.jsonschema2pojo.NoopAnnotator;
+import org.jsonschema2pojo.NoopEnhancer;
 import org.jsonschema2pojo.SourceSortOrder;
 import org.jsonschema2pojo.SourceType;
 import org.jsonschema2pojo.cli.CommandLineLogger.LogLevel;
@@ -127,6 +129,9 @@ public class Arguments implements GenerationConfig {
 
     @Parameter(names = { "-A", "--custom-annotator" }, description = "The fully qualified class name of referring to a custom annotator class that implements org.jsonschema2pojo.Annotator " + "and will be used in addition to the --annotation-style. If you want to use a custom annotator alone, set --annotation-style to none", converter = ClassConverter.class)
     private Class<? extends Annotator> customAnnotator = NoopAnnotator.class;
+    
+    @Parameter(names = { "-A", "--custom-enhancer" }, description = "The fully qualified class name of referring to a custom enhancer class that implements org.jsonschema2pojo.Enhancer .", converter = ClassConverter.class)
+    private Class<? extends Enhancer> customEnhancer = NoopEnhancer.class;
 
     @Parameter(names = { "-F", "--custom-rule-factory" }, description = "The fully qualified class name of referring to a custom rule factory class that extends org.jsonschema2pojo.rules.RuleFactory " + "to create custom rules for code generation.", converter = ClassConverter.class)
     private Class<? extends RuleFactory> customRuleFactory = RuleFactory.class;
@@ -377,7 +382,12 @@ public class Arguments implements GenerationConfig {
     public Class<? extends Annotator> getCustomAnnotator() {
         return customAnnotator;
     }
-
+    
+    @Override
+    public Class<? extends Enhancer> getCustomEnhancer() {
+        return customEnhancer;
+    }
+    
     @Override
     public Class<? extends RuleFactory> getCustomRuleFactory() {
         return customRuleFactory;

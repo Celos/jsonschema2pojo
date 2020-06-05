@@ -16,7 +16,8 @@
 
 package org.jsonschema2pojo.ant;
 
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -43,11 +44,13 @@ import org.apache.tools.ant.types.Reference;
 import org.jsonschema2pojo.AllFileFilter;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.jsonschema2pojo.Annotator;
+import org.jsonschema2pojo.Enhancer;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.InclusionLevel;
 import org.jsonschema2pojo.Jsonschema2Pojo;
 import org.jsonschema2pojo.Language;
 import org.jsonschema2pojo.NoopAnnotator;
+import org.jsonschema2pojo.NoopEnhancer;
 import org.jsonschema2pojo.RuleLogger;
 import org.jsonschema2pojo.SourceSortOrder;
 import org.jsonschema2pojo.SourceType;
@@ -111,6 +114,8 @@ public class Jsonschema2PojoTask extends Task implements GenerationConfig {
     private InclusionLevel inclusionLevel = InclusionLevel.NON_NULL;
 
     private Class<? extends Annotator> customAnnotator = NoopAnnotator.class;
+    
+    private Class<? extends Enhancer> customEnhancer = NoopEnhancer.class;
 
     private Class<? extends RuleFactory> customRuleFactory = RuleFactory.class;
 
@@ -563,6 +568,18 @@ public class Jsonschema2PojoTask extends Task implements GenerationConfig {
             }
         } else {
             this.customAnnotator = NoopAnnotator.class;
+        }
+    }
+    
+    public void setCustomEnhancer(String customEnhancer) {
+        if (isNotBlank(customEnhancer)) {
+            try {
+                this.customEnhancer = (Class<? extends Enhancer>) Class.forName(customEnhancer);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            this.customEnhancer = NoopEnhancer.class;
         }
     }
 
@@ -1066,7 +1083,12 @@ public class Jsonschema2PojoTask extends Task implements GenerationConfig {
     public Class<? extends Annotator> getCustomAnnotator() {
         return customAnnotator;
     }
-
+    
+    @Override
+    public Class<? extends Enhancer> getCustomEnhancer() {
+        return customEnhancer;
+    }
+    
     @Override
     public Class<? extends RuleFactory> getCustomRuleFactory() {
         return customRuleFactory;

@@ -39,11 +39,14 @@ import org.jsonschema2pojo.AllFileFilter;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.jsonschema2pojo.Annotator;
 import org.jsonschema2pojo.AnnotatorFactory;
+import org.jsonschema2pojo.Enhancer;
+import org.jsonschema2pojo.EnhancerFactory;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.InclusionLevel;
 import org.jsonschema2pojo.Jsonschema2Pojo;
 import org.jsonschema2pojo.Language;
 import org.jsonschema2pojo.NoopAnnotator;
+import org.jsonschema2pojo.NoopEnhancer;
 import org.jsonschema2pojo.RuleLogger;
 import org.jsonschema2pojo.SourceSortOrder;
 import org.jsonschema2pojo.SourceType;
@@ -307,6 +310,16 @@ public class Jsonschema2PojoMojo extends AbstractMojo implements GenerationConfi
      * @since 0.3.6
      */
     private String customAnnotator = NoopAnnotator.class.getName();
+    
+    /**
+     * A fully qualified class name, referring to a custom enhancer class that
+     * implements <code>org.jsonschema2pojo.Enhancer</code>
+     *
+     * @parameter property="jsonschema2pojo.customEnhancer"
+     *            default-value="org.jsonschema2pojo.NoopEnhancer"
+     * @since 0.3.6
+     */
+    private String customEnhancer = NoopEnhancer.class.getName();
 
     /**
      * A fully qualified class name, referring to an class that extends
@@ -835,6 +848,12 @@ public class Jsonschema2PojoMojo extends AbstractMojo implements GenerationConfi
         } catch (IllegalArgumentException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    
+        try {
+            new EnhancerFactory(this).getEnhancer(getCustomEnhancer());
+        } catch (IllegalArgumentException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
 
         if (skip) {
             return;
@@ -1010,7 +1029,20 @@ public class Jsonschema2PojoMojo extends AbstractMojo implements GenerationConfi
             return NoopAnnotator.class;
         }
     }
-
+    
+    @Override
+    public Class<? extends Enhancer> getCustomEnhancer() {
+        if (isNotBlank(customEnhancer)) {
+            try {
+                return (Class<? extends Enhancer>) Class.forName(customEnhancer);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            return NoopEnhancer.class;
+        }
+    }
+    
     @Override
     @SuppressWarnings("unchecked")
     public Class<? extends RuleFactory> getCustomRuleFactory() {

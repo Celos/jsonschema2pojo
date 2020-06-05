@@ -17,6 +17,7 @@ package org.jsonschema2pojo.gradle
 
 import org.jsonschema2pojo.AnnotationStyle
 import org.jsonschema2pojo.Annotator
+import org.jsonschema2pojo.Enhancer
 import org.jsonschema2pojo.AllFileFilter
 import org.jsonschema2pojo.GenerationConfig
 import org.jsonschema2pojo.InclusionLevel
@@ -43,6 +44,7 @@ public class JsonSchemaExtension implements GenerationConfig {
   String classNameSuffix
   String[] fileExtensions
   Class<? extends Annotator> customAnnotator
+  Class<? extends Enhancer> customEnhancer
   Class<? extends RuleFactory> customRuleFactory
   boolean generateBuilders
   boolean includeJsonTypeInfoAnnotation
@@ -122,6 +124,7 @@ public class JsonSchemaExtension implements GenerationConfig {
     useTitleAsClassname = false
     inclusionLevel = InclusionLevel.NON_NULL
     customAnnotator = NoopAnnotator.class
+    customEnhancer = NoopEnhancer.class
     customRuleFactory = RuleFactory.class
     includeJsr303Annotations = false
     includeJsr305Annotations = false
@@ -198,6 +201,14 @@ public class JsonSchemaExtension implements GenerationConfig {
     customAnnotator = clazz
   }
 
+  public void setCustomEnhancer(String clazz) {
+    customEnhancer = Class.forName(clazz, true, this.class.classLoader)
+  }
+
+  public void setCustomEnhancer(Class clazz) {
+    customEnhancer = clazz
+  }
+
   public void setCustomRuleFactory(String clazz) {
     customRuleFactory = Class.forName(clazz, true, this.class.classLoader)
   }
@@ -247,6 +258,7 @@ public class JsonSchemaExtension implements GenerationConfig {
        |useTitleAsClassname = ${useTitleAsClassname}
        |inclusionLevel = ${InclusionLevel.toString() }
        |customAnnotator = ${customAnnotator.getName()}
+       |customEnhancer = ${customEnhancer.getName()}
        |customRuleFactory = ${customRuleFactory.getName()}
        |includeJsr303Annotations = ${includeJsr303Annotations}
        |includeJsr305Annotations = ${includeJsr305Annotations}
